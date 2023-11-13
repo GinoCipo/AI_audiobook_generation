@@ -5,18 +5,18 @@ import os, shutil
 def build_audio(urls, paper_name):
     buffer = []
     for part, url in enumerate(urls):
-        path = f"src/buffer/{part}.wav"
+        path = os.path.join("api/buffer", f"{part}.wav")
         buffer.append(urlretrieve(url, path)[0])
     
     audios = [AudioSegment.from_wav(wav_file) for wav_file in buffer]
     combined = AudioSegment.empty()
     for audio in audios:
         combined += audio
-    filepath = f"src/output/{paper_name}.wav"
+    filepath = f"api/output/{paper_name}.wav"
     combined.export(filepath, format="wav")
 
-    for filename in os.listdir("src/buffer"):
-        file_path = os.path.join("src/buffer", filename)
+    for filename in os.listdir("api/buffer"):
+        file_path = os.path.join("api/buffer", filename)
         try:
             if os.path.isfile(file_path) or os.path.islink(file_path):
                 os.unlink(file_path)

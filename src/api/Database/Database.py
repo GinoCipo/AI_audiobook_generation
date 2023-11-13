@@ -81,3 +81,18 @@ def update_audio(
     target_paragraph.body = paragraph.paragraph
 
   return 200
+
+@db_session
+def retrieve_content(
+  id
+):
+  try:
+    target_audio = Audiobook[id]
+  except:
+    return "Audio id does not exist."
+  
+  body = []
+  for paragraph in target_audio.summary:
+    body.append((paragraph.index, paragraph.body))
+
+  return body, Audiobook[id].name
