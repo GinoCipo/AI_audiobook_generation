@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 
 api/Database/db.AIaudiobooks
+api/output/*
+output/*
