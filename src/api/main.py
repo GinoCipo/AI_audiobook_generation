@@ -55,5 +55,6 @@ async def generate(id: int):
     audios.append(tts.fetch_conversion(id))
 
   audio_file = audiobook_api.build_audio(audios, filename)
+  headers = {'Content-Disposition': f'attachment; filename="{filename}"'}
 
-  return FileResponse(audio_file)
+  return FileResponse(audio_file,  headers=headers, media_type="audio/wav")
