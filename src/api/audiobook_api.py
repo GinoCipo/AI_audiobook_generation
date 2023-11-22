@@ -25,8 +25,8 @@ def build_paragraphs(urls, paper_name):
 
 def build_audio(paper_name):
     buffer = [f"output/{paper_name}/" + part for part in os.listdir(f"output/{paper_name}")]
+    buffer.sort(key=extract_number)
     audios = [AudioSegment.from_wav(wav_file) for wav_file in buffer]
-    audios.sort(key=extract_number)
     combined = AudioSegment.empty()
     for audio in audios:
         combined += audio
