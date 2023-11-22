@@ -93,6 +93,21 @@ def retrieve_content(
   
   body = []
   for paragraph in target_audio.summary:
-    body.append((paragraph.index, paragraph.body))
+    body.append((paragraph.id, paragraph.index, paragraph.body))
 
   return body, Audiobook[id].name
+
+@db_session
+def set_paragraph_status(
+  id, 
+  url
+):
+  try:
+    target_paragraph = Paragraph[id]
+  except:
+    return "Paragraph does not exist."
+
+  target_paragraph.status = "done"
+  target_paragraph.audio = url
+
+  return 1

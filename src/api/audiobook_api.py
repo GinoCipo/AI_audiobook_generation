@@ -1,24 +1,39 @@
+import re
+from Database.Database import *
 from pydub import AudioSegment
 from urllib.request import urlretrieve
 import os, shutil
 
-def build_audio(urls, paper_name):
+def extract_number(filename):
+    match = re.search(r'part(\d+)\.wav', filename)
+    if match:
+        return int(match.group(1))
+    return -1  # Return -1 if pattern not found or for non-matching files
+
+def build_paragraphs(urls, paper_name):
     buffer = []
     filepaths = []
     for part, url in enumerate(urls):
-        #path = "api/buffer" + "/" + f"{part}.wav"
-        #open(path, "w+")
         buffer.append(urlretrieve(url, f"part{part}.wav")[0])
         filepaths.append(f"part{part}.wav")
 
+    destination_path = f"output/{paper_name}"
+    os.mkdir(destination_path)
+    for filepath in filepaths:
+        shutil.move(filepath, destination_path)
+    
+
+def build_audio(paper_name):
+    buffer = [f"output/{paper_name}/" + part for part in os.listdir(f"output/{paper_name}")]
     audios = [AudioSegment.from_wav(wav_file) for wav_file in buffer]
+    audios.sort(key=extract_number)
     combined = AudioSegment.empty()
     for audio in audios:
         combined += audio
     filepath = f"{paper_name}.wav"
     combined.export(filepath, format="wav")
 
-    for filename in filepaths:
+    for filename in buffer:
         #file_path = os.path.join("api/buffer", filename)
         try:
             if os.path.isfile(filename) or os.path.islink(filename):
@@ -28,7 +43,7 @@ def build_audio(urls, paper_name):
         except Exception as e:
             print('Failed to delete %s. Reason: %s' % (filename, e))
 
-    destination_path = f"output/{filepath}"
+    destination_path = f"output/{paper_name}/{filepath}"
     shutil.move(filepath, destination_path)
 
     return destination_path
