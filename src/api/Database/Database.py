@@ -111,3 +111,16 @@ def set_paragraph_status(
   target_paragraph.audio = url
 
   return 1
+
+@db_session
+def update_paragraph_body(
+  id,
+  text
+):
+  try:
+    target_paragraph = Paragraph[id]
+  except:
+    return "Paragraph does not exist."
+  
+  target_paragraph.body = text
+  return target_paragraph.index

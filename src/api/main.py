@@ -54,14 +54,34 @@ async def generate(id: int):
     audios.append(tts_api.fetch_conversion(id))
 
   for i in range(len(audios)):
-    set_paragraph_status(content[i], audios[i])
+    set_paragraph_status(content[i][0], audios[i])
 
-  audio_file = audiobook_api.build_audio(audios, filename)
+  zip_file = audiobook_api.build_paragraphs(audios, filename)
   headers = {'Content-Disposition': f'attachment; filename="{filename}"'}
 
-  return FileResponse(audio_file,  headers=headers, media_type="audio/wav")
+  return FileResponse(zip_file,  headers=headers, media_type="application/zip")
 
-@app.post("/api/generate/{id}", tags=["Audio"], status_code=200)
+@app.put("/api/update/paragraph/{id}", tags=["Query"], status_code=200)
+async def update_paragraph(paragraph_id: int, body: str, title: str):
+  paragraph = update_paragraph_body(paragraph_id, body)
+  if type(paragraph) == str:
+    raise HTTPException(status_code=404, detail=paragraph)
+
+  spk_id = tts_api.get_speaker()
+
+  request_id = tts_api.request_conversion(spk_id, body)
+
+  audio = tts_api.fetch_conversion(request_id)
+
+  set_paragraph_status(paragraph_id, audio)
+
+  new_paragraph = audiobook_api.build_paragraph(audio, paragraph, title)
+
+  headers = {'Content-Disposition': f'attachment; filename="{new_paragraph}"'}
+  return FileResponse(new_paragraph,  headers=headers, media_type="audio/wav")
+
+
+@app.post("/api/merge/{id}", tags=["Audio"], status_code=200)
 async def merge(id: int):
   content, filename = retrieve_content(id)
   if type(content) == str:

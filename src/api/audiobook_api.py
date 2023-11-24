@@ -1,4 +1,6 @@
+from io import StringIO
 import re
+import zipfile
 from Database.Database import *
 from pydub import AudioSegment
 from urllib.request import urlretrieve
@@ -18,12 +20,49 @@ def build_paragraphs(urls, paper_name):
         filepaths.append(f"part{part}.wav")
 
     destination_path = f"output/{paper_name}"
-    os.mkdir(destination_path)
+    try:
+        os.mkdir(destination_path)
+    except:
+        print("This directory already exists.")
+
     for filepath in filepaths:
         shutil.move(filepath, destination_path)
+    zip_filename = f"output/{paper_name}/{paper_name}.zip"
+
+    filepaths = [destination_path + "/" + file for file in filepaths]
+    with zipfile.ZipFile(zip_filename, 'w') as zipf:
+        for file in filepaths:
+            zipf.write(file, os.path.basename(file))
     
+    return zip_filename
+
+def build_paragraph(url, index, book):
+    filename = f"part{index}.wav"
+    buffer = urlretrieve(url, filename)[0]
+    destination_path = f"output/{book}"
+    try:
+        os.mkdir(destination_path)
+    except:
+        print("This directory already exists.")
+
+    try:
+        if os.path.isfile(destination_path + "/" + filename) or os.path.islink(destination_path + "/" + filename):
+            os.unlink(destination_path + "/" + filename)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (e))
+
+    shutil.move(filename, destination_path)
+
+    return destination_path + "/" + filename
 
 def build_audio(paper_name):
+    zip_path = f"output/{paper_name}/{paper_name}.zip"
+    try:
+        if os.path.isfile(zip_path) or os.path.islink(zip_path):
+            os.unlink(zip_path)
+    except Exception as e:
+        print('Failed to delete %s. Reason: %s' % (e))
+
     buffer = [f"output/{paper_name}/" + part for part in os.listdir(f"output/{paper_name}")]
     buffer.sort(key=extract_number)
     audios = [AudioSegment.from_wav(wav_file) for wav_file in buffer]
@@ -33,15 +72,14 @@ def build_audio(paper_name):
     filepath = f"{paper_name}.wav"
     combined.export(filepath, format="wav")
 
-    for filename in buffer:
-        #file_path = os.path.join("api/buffer", filename)
-        try:
-            if os.path.isfile(filename) or os.path.islink(filename):
-                os.unlink(filename)
-            elif os.path.isdir(filename):
-                shutil.rmtree(filename)
-        except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (filename, e))
+    #for filename in buffer:
+    #    try:
+    #        if os.path.isfile(filename) or os.path.islink(filename):
+    #            os.unlink(filename)
+    #        elif os.path.isdir(filename):
+    #            shutil.rmtree(filename)
+    #    except Exception as e:
+    #        print('Failed to delete %s. Reason: %s' % (filename, e))
 
     destination_path = f"output/{paper_name}/{filepath}"
     shutil.move(filepath, destination_path)
