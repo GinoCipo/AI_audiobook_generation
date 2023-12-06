@@ -19,7 +19,11 @@ def build_paragraphs(urls, paper_name):
         buffer.append(urlretrieve(url, f"part{part}.wav")[0])
         filepaths.append(f"part{part}.wav")
 
-    destination_path = f"output/{paper_name}"
+    destination_path = f"output/{paper_name}" 
+    try:
+        os.mkdir("output")
+    except:
+        print("This directory already exists.")
     try:
         os.mkdir(destination_path)
     except:
