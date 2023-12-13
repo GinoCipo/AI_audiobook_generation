@@ -1,12 +1,22 @@
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic_models import *
 from Database.Database import *
 import audiobook_api
-import sys
-import uvicorn
 import tts_api
+
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/api/create", tags=["Create"], status_code=200)
 async def create(bookData: BookType):
