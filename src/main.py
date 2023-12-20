@@ -67,9 +67,9 @@ async def generate(id: int):
     set_paragraph_status(content[i][0], audios[i])
 
   zip_file = audiobook_api.build_paragraphs(audios, filename)
-  headers = {'Content-Disposition': f'attachment; filename="{filename}"'}
+  headers = {'Content-Disposition': 'attachment'}
 
-  return FileResponse(zip_file,  headers=headers, media_type="application/zip")
+  return FileResponse(zip_file,  headers=headers, filename=f"{filename}", media_type="application/zip")
 
 @app.put("/api/update/paragraph/{id}", tags=["Query"], status_code=200)
 async def update_paragraph(paragraph_id: int, body: str, title: str):

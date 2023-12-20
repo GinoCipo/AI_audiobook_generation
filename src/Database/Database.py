@@ -22,16 +22,18 @@ db.generate_mapping(create_tables=True)
 @db_session
 def create_audio(
   name,
-  summary
+  summary 
 ):
   new_audio = Audiobook(
     name=name
   )
   sum = []
-  for paragraph in summary:
+  for text in summary:
+    if not text.paragraph:
+      continue
     new_paragraph = Paragraph(
-      index = paragraph.index,
-      body = paragraph.paragraph,
+      index = text.index,
+      body = text.paragraph,
       status = "pending",
       audio = "",
       owner = new_audio
@@ -44,6 +46,7 @@ def create_audio(
       "owner": new_paragraph.owner.name
     }))
 
+  new_audio.flush()
   data = {
     "id": new_audio.id,
     "name": new_audio.name,
