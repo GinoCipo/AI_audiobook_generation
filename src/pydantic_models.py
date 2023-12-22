@@ -16,3 +16,9 @@ class AudiobookType(BaseModel):
   id:int
   name:str
   summary: List[ParagraphClass]
+
+class UpdateParagraph(BaseModel):
+  audio_id: int
+  paragraph_index:int
+  body: str
+  title: str

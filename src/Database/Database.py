@@ -118,12 +118,14 @@ def set_paragraph_status(
 @db_session
 def update_paragraph_body(
   id,
+  index,
   text
 ):
   try:
-    target_paragraph = Paragraph[id]
+    query = Audiobook[id].summary.select(lambda p: p.index == index)[:]
+    target_paragraph = query[0]
   except:
     return "Paragraph does not exist."
-  
+
   target_paragraph.body = text
-  return target_paragraph.index
+  return target_paragraph.id

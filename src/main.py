@@ -71,21 +71,21 @@ async def generate(id: int):
 
   return FileResponse(zip_file,  headers=headers, filename=f"{filename}", media_type="application/zip")
 
-@app.put("/api/update/paragraph/{id}", tags=["Query"], status_code=200)
-async def update_paragraph(paragraph_id: int, body: str, title: str):
-  paragraph = update_paragraph_body(paragraph_id, body)
-  if type(paragraph) == str:
-    raise HTTPException(status_code=404, detail=paragraph)
+@app.put("/api/update/paragraph", tags=["Query"], status_code=200)
+async def update_paragraph(data: UpdateParagraph):
+  paragraph_id = update_paragraph_body(data.audio_id, data.paragraph_index, data.body)
+  if type(paragraph_id) == str:
+    raise HTTPException(status_code=404, detail=paragraph_id)
 
   spk_id = tts_api.get_speaker()
 
-  request_id = tts_api.request_conversion(spk_id, body)
+  request_id = tts_api.request_conversion(spk_id, data.body)
 
   audio = tts_api.fetch_conversion(request_id)
 
   set_paragraph_status(paragraph_id, audio)
 
-  new_paragraph = audiobook_api.build_paragraph(audio, paragraph, title)
+  new_paragraph = audiobook_api.build_paragraph(audio, data.paragraph_index, data.title)
 
   headers = {'Content-Disposition': f'attachment; filename="{new_paragraph}"'}
   return FileResponse(new_paragraph,  headers=headers, media_type="audio/wav")
