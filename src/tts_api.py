@@ -3,11 +3,13 @@ import requests
 import json
 import time
 
+personal_api_key = ""
+
 URL = "https://api.genny.lovo.ai"
 headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "X-API-KEY": "a924998b-fa48-4046-ae06-2f387c79b773"
+        "X-API-KEY": personal_api_key
     }
 
 def get_speaker():

@@ -33,16 +33,6 @@ async def select(title: AudioTitle = Depends()):
     raise HTTPException(status_code=404, detail=query)
   return response
 
-@app.put("/api/update/{book_id}", tags=["Query"], status_code=200)
-async def update(bookData: BookType, book_id: int):
-  query = update_audio(book_id, bookData.name, bookData.summary)
-
-  if type(query) == int:
-    response = {"detail": "Audio modified succesfully."}
-  else:
-    raise HTTPException(status_code=404, detail=query)
-  return response
-
 @app.post("/api/generate/{id}", tags=["Audio"], status_code=200)
 async def generate(id: int):
   content, filename = retrieve_content(id)
@@ -71,7 +61,7 @@ async def generate(id: int):
 
   return FileResponse(zip_file,  headers=headers, filename=f"{filename}", media_type="application/zip")
 
-@app.put("/api/update/paragraph", tags=["Query"], status_code=200)
+@app.post("/api/update/paragraph", tags=["Query"], status_code=200)
 async def update_paragraph(data: UpdateParagraph):
   paragraph_id = update_paragraph_body(data.audio_id, data.paragraph_index, data.body)
   if type(paragraph_id) == str:
