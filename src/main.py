@@ -23,16 +23,6 @@ async def create(bookData: BookType):
   response = create_audio(bookData.name, bookData.summary)
   return response
 
-@app.get("/api/select_by_name", tags=["Query"], status_code=200)
-async def select(title: AudioTitle = Depends()):
-  query = check_audio(title.name)
-  print(query)
-  if type(query) == int:
-    response = {"audio_id": query}
-  else:
-    raise HTTPException(status_code=404, detail=query)
-  return response
-
 @app.post("/api/generate/{id}", tags=["Audio"], status_code=200)
 async def generate(id: int):
   content, filename = retrieve_content(id)
